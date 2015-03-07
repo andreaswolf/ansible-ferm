@@ -165,6 +165,8 @@
     owner: 'root'
     group: 'root'
     mode: '0755'
+  when: ansible_os_family == "Debian"
+  # TODO check if we should also have this on CentOS
 
 - name: Ensure that Ansible local facts directory exists
   file:
