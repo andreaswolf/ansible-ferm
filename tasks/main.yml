@@ -18,13 +18,17 @@
   when: ansible_os_family == "Debian"
 
 - name: Ensure ferm is installed
+  yum: name=ferm state=present
+  when: (ansible_os_family == "RedHat" and (ferm | bool))
+
+- name: Ensure ferm is installed
   apt:
     name: 'ferm'
     state: 'latest'
     install_recommends: 'no'
-  when: (ferm | bool and (ferm_ignore_cap12s | bool or (ansible_local|d() and ansible_local.cap12s|d() and
+  when: (ansible_os_family == "Debian" and (ferm | bool and (ferm_ignore_cap12s | bool or (ansible_local|d() and ansible_local.cap12s|d() and
          (not ansible_local.cap12s.enabled | bool or
-          (ansible_local.cap12s.enabled | bool and 'cap_net_admin' in ansible_local.cap12s.list)))))
+          (ansible_local.cap12s.enabled | bool and 'cap_net_admin' in ansible_local.cap12s.list))))))
 
 - name: Create configuration directories
   file:
