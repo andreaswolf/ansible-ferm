@@ -7,6 +7,7 @@
              (not ansible_local.cap12s.enabled | bool or
               (ansible_local.cap12s.enabled | bool and 'cap_net_admin' in ansible_local.cap12s.list))))) %}
       yes{% else %}no{% endif %}
+  when: ansible_os_family == "Debian"
 
 - name: Configure ferm status in debconf
   debconf:
@@ -14,6 +15,7 @@
     question: 'ferm/enable'
     vtype: 'boolean'
     value: '{{ ferm_register_debconf }}'
+  when: ansible_os_family == "Debian"
 
 - name: Ensure ferm is installed
   apt:
