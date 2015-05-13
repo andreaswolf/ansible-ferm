@@ -38,8 +38,8 @@
     group: 'adm'
     mode: '2750'
   with_items:
-    - '/etc/ferm/ferm.d'
-    - '/etc/ferm/filter-input.d'
+    - '{{ ferm_config_dir }}/ferm.d'
+    - '{{ ferm_config_dir }}/filter-input.d'
 
 - name: Configure ferm default variables
   template:
@@ -53,7 +53,7 @@
 - name: Configure main ferm config file
   template:
     src: 'etc/ferm/ferm.conf.j2'
-    dest: '/etc/ferm/ferm.conf'
+    dest: '{{ ferm_config_dir }}/ferm.conf'
     owner: 'root'
     group: 'adm'
     mode: '0644'
@@ -62,7 +62,7 @@
 - name: Allow SSH access from Ansible Controller
   template:
     src: 'etc/ferm/filter-input.d/ansible_controller.conf.j2'
-    dest: '/etc/ferm/filter-input.d/10_ansible_controller.conf'
+    dest: '{{ ferm_config_dir }}/filter-input.d/10_ansible_controller.conf'
     owner: 'root'
     group: 'adm'
     mode: '0644'
@@ -71,7 +71,7 @@
 - name: Configure forwarding in ip(6)tables if enabled
   template:
     src: 'etc/ferm/ferm.d/10_forward.conf.j2'
-    dest: '/etc/ferm/ferm.d/10_forward.conf'
+    dest: '{{ ferm_config_dir }}/ferm.d/10_forward.conf'
     owner: 'root'
     group: 'adm'
     mode: '0644'
@@ -79,7 +79,7 @@
 
 - name: Remove ip(6)tables rules if requested
   file:
-    path: '/etc/ferm/ferm.d/{{ item.weight | default("50") }}_{{ item.filename | default(item.type + "_" + item.dport[0] | default("rules")) }}.conf'
+    path: '{{ ferm_config_dir }}/ferm.d/{{ item.weight | default("50") }}_{{ item.filename | default(item.type + "_" + item.dport[0] | default("rules")) }}.conf'
     state: 'absent'
   with_flattened:
     - ferm_rules
@@ -93,7 +93,7 @@
 - name: Configure ip(6)tables rules
   template:
     src: 'etc/ferm/ferm.d/{{ item.type }}.conf.j2'
-    dest: '/etc/ferm/ferm.d/{{ item.weight | default("50") }}_{{ item.filename | default(item.type + "_" + (item.dport[0] | default("rules"))) }}.conf'
+    dest: '{{ ferm_config_dir }}/ferm.d/{{ item.weight | default("50") }}_{{ item.filename | default(item.type + "_" + (item.dport[0] | default("rules"))) }}.conf'
     owner: 'root'
     group: 'adm'
     mode: '0644'
@@ -108,7 +108,7 @@
 
 - name: Remove iptables INPUT rules if requested
   file:
-    path: '/etc/ferm/filter-input.d/{{ item.weight | default("50") }}_{{ item.filename | default(item.type + "_" + item.dport[0] | default("rules")) }}.conf'
+    path: '{{ ferm_config_dir }}/filter-input.d/{{ item.weight | default("50") }}_{{ item.filename | default(item.type + "_" + item.dport[0] | default("rules")) }}.conf'
     state: 'absent'
   with_flattened:
     - ferm_input_list
@@ -122,7 +122,7 @@
 - name: Configure iptables INPUT rules
   template:
     src: 'etc/ferm/filter-input.d/{{ item.type }}.conf.j2'
-    dest: '/etc/ferm/filter-input.d/{{ item.weight | default("50") }}_{{ item.filename | default(item.type + "_" + (item.dport[0] | default("rules"))) }}.conf'
+    dest: '{{ ferm_config_dir }}/filter-input.d/{{ item.weight | default("50") }}_{{ item.filename | default(item.type + "_" + (item.dport[0] | default("rules"))) }}.conf'
     owner: 'root'
     group: 'adm'
     mode: '0644'
@@ -136,14 +136,14 @@
          (item.delete is undefined or not item.delete))
 
 - name: Apply iptables rules if ferm is enabled
-  command: ferm --slow /etc/ferm/ferm.conf
+  command: ferm --slow {{ ferm_config_dir }}/ferm.conf
   changed_when: False
   when: (ferm | bool and (ferm_ignore_cap12s | bool or (ansible_local|d() and ansible_local.cap12s|d() and
          (not ansible_local.cap12s.enabled | bool or
           (ansible_local.cap12s.enabled | bool and 'cap_net_admin' in ansible_local.cap12s.list)))))
 
 - name: Clear iptables rules if ferm is disabled
-  command: ferm --flush /etc/ferm/ferm.conf
+  command: ferm --flush {{ ferm_config_dir }}/ferm.conf
   changed_when: False
   when: ((not ferm and ferm_flush) and (ansible_local|d() and ansible_local.ferm|d() and
           ansible_local.ferm.enabled | bool) and (ferm_ignore_cap12s or (ansible_local|d() and ansible_local.cap12s|d() and

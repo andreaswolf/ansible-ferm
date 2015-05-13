@@ -9,6 +9,8 @@ ferm: True
 # iptables.
 ferm_flush: True
 
+ferm_config_dir: /etc/ferm
+
 # Force firewall configuration even if role thinks otherwise
 ferm_ignore_cap12s: False
 
