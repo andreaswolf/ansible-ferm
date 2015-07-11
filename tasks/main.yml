@@ -49,6 +49,7 @@
     group: 'root'
     mode: '0644'
   notify: [ 'Restart ferm' ]
+  when: ansible_os_family == "Debian"
 
 - name: Configure main ferm config file
   template:

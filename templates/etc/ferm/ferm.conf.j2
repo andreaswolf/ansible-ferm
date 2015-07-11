@@ -86,7 +86,7 @@ domain $domains table filter {
 		}
 
 		# Include INPUT rules for enabled domains (IPv4, IPv6)
-		@include 'filter-input.d/';
+		@include '{{ ferm_config_dir }}/filter-input.d/';
 
 {% if ferm_mark_portscan is defined and ferm_mark_portscan %}
 		# Catch bad guys (port scanners)
