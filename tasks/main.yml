@@ -21,6 +21,10 @@
   yum: name=ferm state=present
   when: (ansible_os_family == "RedHat" and (ferm | bool))
 
+- name: Enable ferm service
+  service: name=ferm state=started enabled=yes
+  when: (ferm | bool)
+
 - name: Ensure ferm is installed
   apt:
     name: 'ferm'
