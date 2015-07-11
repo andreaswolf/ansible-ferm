@@ -9,7 +9,12 @@ ferm: True
 # iptables.
 ferm_flush: True
 
+# The config directory, place additional files to include here
+# TODO this is currently a bit ugly, as most files will be placed in 
+# /etc/ferm/ferm.d/ and /etc/ferm will be empty on RHEL-based distros
 ferm_config_dir: /etc/ferm
+# The main config file
+ferm_config_file: /etc/ferm.conf
 
 # Force firewall configuration even if role thinks otherwise
 ferm_ignore_cap12s: False

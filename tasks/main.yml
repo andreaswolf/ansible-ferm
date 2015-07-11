@@ -53,7 +53,7 @@
 - name: Configure main ferm config file
   template:
     src: 'etc/ferm/ferm.conf.j2'
-    dest: '{{ ferm_config_dir }}/ferm.conf'
+    dest: '{{ ferm_config_file }}'
     owner: 'root'
     group: 'adm'
     mode: '0644'
@@ -136,14 +136,14 @@
          (item.delete is undefined or not item.delete))
 
 - name: Apply iptables rules if ferm is enabled
-  command: ferm --slow {{ ferm_config_dir }}/ferm.conf
+  command: ferm --slow {{ ferm_config_file }}
   changed_when: False
   when: (ferm | bool and (ferm_ignore_cap12s | bool or (ansible_local|d() and ansible_local.cap12s|d() and
          (not ansible_local.cap12s.enabled | bool or
           (ansible_local.cap12s.enabled | bool and 'cap_net_admin' in ansible_local.cap12s.list)))))
 
 - name: Clear iptables rules if ferm is disabled
-  command: ferm --flush {{ ferm_config_dir }}/ferm.conf
+  command: ferm --flush {{ ferm_config_file }}
   changed_when: False
   when: ((not ferm and ferm_flush) and (ansible_local|d() and ansible_local.ferm|d() and
           ansible_local.ferm.enabled | bool) and (ferm_ignore_cap12s or (ansible_local|d() and ansible_local.cap12s|d() and
